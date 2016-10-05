@@ -7,34 +7,35 @@ module Spree
         def initialize(gateway, order)
           @order = order
           begin
-            @customer = gateway.provider::Customer.find(order.user.id) if order.user
+            @customer = gateway.provider::Customer.find(order.user.braintree_id) if order.user.try(:braintree_id)
           rescue
           end
           @gateway = gateway
         end
 
-        def get_address(address_type)
-          if order.user && (address = order.user.send("#{address_type}_address"))
-            braintree_address = BraintreeVzeroBase::Address.new(gateway.provider, order)
-            vaulted_duplicate = Spree::Address.vaulted_duplicates(address).first
-
-            if vaulted_duplicate && braintree_address.find(vaulted_duplicate.braintree_id)
-              { "#{address_type}_address_id" => vaulted_duplicate.braintree_id }
-            else
-              { address_type => address_data(address_type, order.user) }
-            end
-          else
-            { address_type => address_data(address_type, order) }
-          end
-        end
-
-        def get_customer
-          if @customer
-            { customer_id: @customer.id }
-          else
-            { customer: (payment_in_vault[:store_shipping_address_in_vault] && order.user) ? customer_data(order.user) : {} }
-          end
-        end
+        # HAS BEEN OVERLOADED IN MW CODE
+        # def get_address(address_type)
+        #     if order.user && (address = order.user.send("#{address_type}_address"))
+        #       braintree_address = BraintreeVzeroBase::Address.new(gateway.provider, order)
+        #       vaulted_duplicate = Spree::Address.vaulted_duplicates(address).first
+        # 
+        #       if vaulted_duplicate && braintree_address.find(vaulted_duplicate.braintree_id)
+        #         { "#{address_type}_address_id" => vaulted_duplicate.braintree_id }
+        #       else
+        #         { address_type => address_data(address_type, order.user) }
+        #       end
+        #     else
+        #       { address_type => address_data(address_type, order) }
+        #     end
+        #   end
+        # HAS BEEN OVERLOADED IN MW CODE
+        # def get_customer
+        #   if @customer
+        #     { customer_id: @customer.id }
+        #   else
+        #     { customer: (payment_in_vault[:store_shipping_address_in_vault] && order.user) ? customer_data(order.user) : {} }
+        #   end
+        # end
 
         def order_data(identifier, amount)
           identifier.merge(

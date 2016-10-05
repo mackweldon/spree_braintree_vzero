@@ -10,9 +10,11 @@ module Spree
           @utils = Utils.new(provider, order)
           @spree_user = spree_user
           @request = provider::Customer
-          if spree_user.braintree_id
-            @user = @request.find(spree_user.braintree_id)
-          end
+          # this produces an extra get request to fetch this user from the BT API
+          # but appears not to be used
+          # if spree_user.braintree_id
+          #           @user = @request.find(spree_user.braintree_id)
+          #         end
           
         end
 
