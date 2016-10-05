@@ -10,10 +10,10 @@ module Spree
           @utils = Utils.new(provider, order)
           @spree_user = spree_user
           @request = provider::Customer
-          begin
-            @user = @request.find(spree_user.try(:id))
-          rescue
+          if spree_user.braintree_id
+            @user = @request.find(spree_user.braintree_id)
           end
+          
         end
 
         def register_user
